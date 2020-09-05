@@ -5,7 +5,9 @@ from email.mime.base import MIMEBase
 from email import encoders 
 
 def sendtheemail():
-    ##
+    ## Set your Email, and the recipients
+    ## Enter your password
+    ## for gmail, you must enable the "Allow Less Secure Applications" setting
     fromaddr = "me@me.me"
     toaddr = "you@you.com"
     password = ""

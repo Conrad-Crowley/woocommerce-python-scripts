@@ -35,4 +35,5 @@ for i in range(len(r.json())):
 with open("recent_orders.csv", "w") as f:
     writer = csv.writer(f)
     writer.writerows(customer_info)
+# Send the email
 send_email.sendtheemail()
