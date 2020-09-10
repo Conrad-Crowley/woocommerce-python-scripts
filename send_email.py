@@ -3,65 +3,76 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText 
 from email.mime.base import MIMEBase 
 from email import encoders 
+import config
 
-def sendtheemail():
-    ## Set your Email, and the recipients
-    ## Enter your password
-    ## for gmail, you must enable the "Allow Less Secure Applications" setting
-    fromaddr = "me@me.me"
-    toaddr = "you@you.com"
-    password = ""
-    # creates SMTP session 
-    # change this to your smtp server and port
-    s = smtplib.SMTP('smtp.gmail.com', 587) 
-    # instance of MIMEMultipart 
-    msg = MIMEMultipart() 
-    
-    # storing the senders email address   
-    msg['From'] = fromaddr 
-    
-    # storing the receivers email address  
-    msg['To'] = toaddr 
-    
-    # storing the subject  
-    msg['Subject'] = "Orders update for today"
-    
-    # string to store the body of the mail 
-    body = "Please find attached a CSV with today's orders"
-    
-    # attach the body with the msg instance 
-    msg.attach(MIMEText(body, 'plain')) 
-    
-    # open the file to be sent  
-    filename = "recent_orders.csv"
-    attachment = open("recent_orders.csv", "rb") 
-    
-    # instance of MIMEBase and named as p 
-    p = MIMEBase('application', 'octet-stream') 
-    
-    # To change the payload into encoded form 
-    p.set_payload((attachment).read()) 
-    
-    # encode into base64 
-    encoders.encode_base64(p) 
-    
-    p.add_header('Content-Disposition', "attachment; filename= %s" % filename) 
-    
-    # attach the instance 'p' to instance 'msg' 
-    msg.attach(p) 
-    
-    # start TLS for security 
-    s.starttls() 
-    
-    # Authentication 
-    s.login(fromaddr, password) 
-    
-    # Converts the Multipart msg into a string 
-    text = msg.as_string() 
-    
-    # sending the mail 
-    s.sendmail(fromaddr, toaddr, text) 
-    
-    # terminating the session 
-    s.quit() 
+def sendtheemail(email_recipients, attachment_filename, subject = "Automated Email",message = ""):
+    '''Sends email to each person in the list.
+
+        Connects to gmail stmp server, and sends the email with attachment.
+
+        Parameters: 
+        email_recipients (list) [required] : list of strings of email addresses of the recipients
+        attachment (string) [required] : attachment to email
+        subject (string) [optional] : Change email subject
+        message (string) [optional] : add additional message to email body
+
+
+     '''
+    for person in email_recipients:
+        fromaddr = config.from_address
+        toaddr = person
+
+        # instance of MIMEMultipart 
+        msg = MIMEMultipart() 
+
+        # storing the senders email address   
+        msg['From'] = fromaddr 
+
+        # storing the receivers email address  
+        msg['To'] = toaddr 
+
+        # storing the subject  
+        msg['Subject'] = subject
+
+        # string to store the body of the mail 
+        body = "This an automated email. Please find attached a csv file. Message: " + message
+
+        # attach the body with the msg instance 
+        msg.attach(MIMEText(body, 'plain')) 
+
+        # open the file to be sent  
+        filename = attachment_filename
+        attachment = open(attachment_filename, "rb") 
+
+        # instance of MIMEBase and named as p 
+        p = MIMEBase('application', 'octet-stream') 
+
+        # To change the payload into encoded form 
+        p.set_payload((attachment).read()) 
+
+        # encode into base64 
+        encoders.encode_base64(p) 
+
+        p.add_header('Content-Disposition', "attachment; filename= %s" % filename) 
+
+        # attach the instance 'p' to instance 'msg' 
+        msg.attach(p) 
+
+        # creates SMTP session 
+        s = smtplib.SMTP('smtp.gmail.com', 587) 
+
+        # start TLS for security 
+        s.starttls() 
+
+        # Authentication 
+        s.login(fromaddr, config.email_pass) 
+
+        # Converts the Multipart msg into a string 
+        text = msg.as_string() 
+
+        # sending the mail 
+        s.sendmail(fromaddr, toaddr, text) 
+
+        # terminating the session 
+        s.quit() 
 
